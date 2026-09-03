@@ -23,7 +23,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# أضفنا Animations باستخدام CSS
 CUSTOM_CSS = """
 <style>
 :root {
@@ -91,6 +90,15 @@ h1, h2, h3 {
     border-radius: 5px;
     animation: fillBar 1.2s ease-out forwards;
 }
+.stats-badge {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    margin-right: 8px;
+    display: inline-block;
+}
 footer, #MainMenu {visibility: hidden;}
 </style>
 """
@@ -130,26 +138,35 @@ EMOJI = {"negative": "🌧️", "neutral": "🌤️", "positive": "☀️"}
 def main():
     # --- Sidebar ---
     with st.sidebar:
-        st.title("🕊️ App Info")
+        st.title("🕊️ App Architecture")
         try:
             _, _, _, config = load_artifacts()
-            st.success(f"**Model:** {config.get('best_model', 'N/A')}")
+            best_model_name = config.get('best_model', 'N/A')
+            
+            st.success(f"**👑 Active Model:** {best_model_name}")
+            st.info(
+                "**Models Trained & Evaluated:**\n"
+                "- SimpleRNN\n"
+                "- LSTM\n"
+                "- GRU\n\n"
+                "*The app automatically deployed the model with the highest test accuracy.*"
+            )
         except:
             st.warning("Model not loaded yet.")
             
         st.markdown("---")
-        st.subheader("About this project")
+        st.subheader("📌 About this project")
         st.write(
-            "This model was trained on the Tweet Sentiment Extraction dataset (Kaggle) "
-            "using TensorFlow/Keras. SimpleRNN, LSTM, and GRU were compared, and the best "
-            "one was selected based on test set performance."
+            "An end-to-end Deep Learning NLP pipeline. "
+            "It cleans raw text, tokenizes words into sequences, and passes them "
+            "through recurrent neural networks to classify the emotional tone."
         )
         st.markdown("---")
-        st.caption("Made with ❤️ using Streamlit")
+        st.caption("Made with ❤️ using Streamlit & TensorFlow")
 
     # --- Main Page ---
     st.title("Tweet Sentiment Analyzer")
-    st.write("Type a tweet in English and see what sentiment the model predicts!")
+    st.write("Type a tweet in English and see what sentiment the AI predicts!")
 
     try:
         model, tokenizer, label_encoder, config = load_artifacts()
@@ -160,23 +177,27 @@ def main():
         )
         st.stop()
 
-    # Feature: Examples Dropdown
+    # Feature: Diverse Examples Dropdown
     example_options = [
         "✏️ (Type your own tweet)",
-        "I had an absolutely wonderful day today! The weather was perfect. ☀️",
-        "I am so disappointed with the service. My order is completely ruined! 😡",
-        "I am going to the grocery store to pick up some coffee and a few books. ☕"
+        "I had an absolutely wonderful day today! Best day ever! 🎉", 
+        "My flight was delayed by 4 hours and I lost my luggage. Terrible experience. 😡", 
+        "I'll be attending the tech conference in London next week. 🏢",
+        "Oh great, another flat tire. Just what I needed today. 🙄", # Sarcasm
+        "The food was okay, but the service was extremely slow and rude. 📉" # Mixed sentiment
     ]
     selected_example = st.selectbox("💡 Try a ready example:", example_options)
 
     # Set text area value based on selection
     if selected_example != example_options[0]:
-        text = st.text_area("Tweet", value=selected_example[:-2], height=120) # removing emoji from end for cleaner input
+        # removing the emoji from the end for cleaner input
+        clean_example_text = selected_example[:-2].strip()
+        text = st.text_area("Tweet", value=clean_example_text, height=120) 
     else:
         text = st.text_area("Tweet", placeholder="e.g. I can't believe how great today turned out!", height=120)
 
     # Layout for button
-    col1, col2 = st.columns([1, 3])
+    col1, col2 = st.columns([1.5, 3])
     with col1:
         analyze = st.button("✨ Analyze Sentiment", type="primary", use_container_width=True)
 
@@ -184,33 +205,37 @@ def main():
         if not text.strip():
             st.warning("Please type a tweet first 🙂")
         else:
-            # Animation feature: Spinner
             with st.spinner('Analyzing the tweet... 🧠'):
-                time.sleep(0.6) # Fake slight delay to show the nice loading animation
+                time.sleep(0.5) 
                 
+                # 1. Cleaning
                 cleaned = clean_text(text)
+                word_count = len(cleaned.split())
+                char_count = len(cleaned)
+                
+                # 2. Tokenization & Padding
                 maxlen = config.get("maxlen", 40)
                 seq = tokenizer.texts_to_sequences([cleaned])
                 pad = pad_sequences(seq, maxlen=maxlen, padding="post", truncating="post")
+                
+                # 3. Prediction
                 probs = model.predict(pad, verbose=0)[0]
                 pred_idx = int(np.argmax(probs))
                 pred_label = label_encoder.inverse_transform([pred_idx])[0]
                 confidence_score = float(probs[pred_idx]) * 100
 
-            # Toast Notification
             st.toast(f'Analysis complete! Sentiment is {pred_label.capitalize()}', icon='✅')
             
-            # Easter Egg Feature: Balloons for high positive
-            if pred_label == 'positive' and confidence_score > 85.0:
+            if pred_label == 'positive' and confidence_score > 80.0:
                 st.balloons()
 
-            # Confidence Badge logic
+            # --- Results UI ---
             if confidence_score >= 80:
-                badge = f"<span style='background-color:#d4edda; color:#155724; padding:3px 8px; border-radius:12px; font-size:0.8rem;'>High Confidence ({confidence_score:.1f}%)</span>"
+                badge = f"<span style='background-color:#d4edda; color:#155724; padding:4px 10px; border-radius:12px; font-size:0.85rem;'>🔥 High Confidence ({confidence_score:.1f}%)</span>"
             elif confidence_score >= 50:
-                badge = f"<span style='background-color:#fff3cd; color:#856404; padding:3px 8px; border-radius:12px; font-size:0.8rem;'>Moderate Confidence ({confidence_score:.1f}%)</span>"
+                badge = f"<span style='background-color:#fff3cd; color:#856404; padding:4px 10px; border-radius:12px; font-size:0.85rem;'>🤔 Moderate Confidence ({confidence_score:.1f}%)</span>"
             else:
-                badge = f"<span style='background-color:#f8d7da; color:#721c24; padding:3px 8px; border-radius:12px; font-size:0.8rem;'>Low Confidence ({confidence_score:.1f}%)</span>"
+                badge = f"<span style='background-color:#f8d7da; color:#721c24; padding:4px 10px; border-radius:12px; font-size:0.85rem;'>⚠️ Low Confidence ({confidence_score:.1f}%)</span>"
 
             # Display Result Card
             st.markdown(
@@ -224,8 +249,24 @@ def main():
                 """,
                 unsafe_allow_html=True,
             )
+            
+            st.write("") # spacing
 
-            st.write("---")
+            # Feature: NLP Insights & Stats
+            with st.expander("🔍 See how the AI processed this tweet"):
+                st.markdown(
+                    f"""
+                    <div style="margin-bottom: 10px;">
+                        <span class="stats-badge">📝 Words: {word_count}</span>
+                        <span class="stats-badge">🔤 Chars: {char_count}</span>
+                    </div>
+                    """, 
+                    unsafe_allow_html=True
+                )
+                st.write("**Cleaned Text (Input to Model):**")
+                st.code(cleaned if cleaned else "[Empty after cleaning links/tags]", language="text")
+                st.caption("Notice how links, mentions (@), hashtags (#), and punctuation were removed so the model can focus purely on the words.")
+
             st.markdown("### 📊 Probability Distribution")
             
             # Display Progress Bars
