@@ -11,9 +11,19 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-C9694F?style=for-the-badge&logo=streamlit&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-8a8163?style=for-the-badge)
 
+<br/>
+
+### 🔗 [**Try the live app →**](https://tweetssentimentanalysis-5qnium5secfszna9oikux6.streamlit.app/)
+
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://tweetssentimentanalysis-5qnium5secfszna9oikux6.streamlit.app/)
+
 </div>
 
 <br/>
+
+<img width="1860" height="867" alt="Screenshot 2026-09-03 080232" src="https://github.com/user-attachments/assets/d84af63d-3a1b-4030-9668-bee71169653a" />
+
+<img width="1860" height="867" alt="Screenshot 2026-09-03 080215" src="https://github.com/user-attachments/assets/b18323a2-357b-4a59-80d4-728526a359aa" />
 
 ## 📌 What this is
 
@@ -59,6 +69,8 @@ live predictions.
 <br/>
 
 ## 🚀 Quickstart
+
+> 💡 Don't want to set anything up? **[Open the live app](https://tweetssentimentanalysis-5qnium5secfszna9oikux6.streamlit.app/)** — no install needed.
 
 <table>
 <tr><td>
@@ -155,6 +167,6 @@ and **ReduceLROnPlateau**.
 <div align="center">
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:C9694F,100:33564F&height=100&section=footer" width="100%"/>
 
-Made with 🧠 TensorFlow · 🎈 Streamlit · ☕
+Made with Nada Hossam 🧠 TensorFlow · 🎈 Streamlit · ☕
 
 </div>
