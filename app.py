@@ -121,10 +121,10 @@ def load_base_artifacts():
 
 @st.cache_resource
 def load_selected_model(model_choice):
-
+    # أسماء الملفات مطابقة 100% لصورتك على جيثب
     file_map = {
         "🏆 Best Model (Auto)": "sentiment_model.keras",
-        "LSTM": "best_Lstm.keras",
+        "LSTM": "best_lstm.keras",
         "GRU": "best_gru.keras",
         "SimpleRNN": "best_simplernn.keras"
     }
