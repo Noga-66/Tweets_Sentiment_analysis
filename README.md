@@ -8,7 +8,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.10+-33564F?style=for-the-badge&logo=python&logoColor=white)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15+-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)
-![Streamlit](https://tweetssentimentanalysis-5qnium5secfszna9oikux6.streamlit.app/)
+![Streamlit](https://img.shields.io/badge/Streamlit-App-C9694F?style=for-the-badge&logo=streamlit&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-8a8163?style=for-the-badge)
 
 </div>
@@ -126,7 +126,7 @@ and **ReduceLROnPlateau**.
    git remote add origin https://github.com/<username>/<repo-name>.git
    git push -u origin main
    ```
-2. Go to **[share.streamlit.io](https://tweetssentimentanalysis-5qnium5secfszna9oikux6.streamlit.app/)** → sign in with GitHub
+2. Go to **[share.streamlit.io](https://share.streamlit.io)** → sign in with GitHub
 3. **New app** → pick your repo/branch → main file: `app.py` → **Deploy**
 4. Get a live link like `https://your-app-name.streamlit.app` — every `git push` auto-redeploys it 🔄
 
