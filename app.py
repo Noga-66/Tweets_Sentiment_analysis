@@ -107,7 +107,7 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 
 # ----------------------------------------------------------------------
-# Load Artifacts (Separated model loading for dynamic selection)
+# Load Artifacts
 # ----------------------------------------------------------------------
 @st.cache_resource
 def load_base_artifacts():
@@ -121,11 +121,12 @@ def load_base_artifacts():
 
 @st.cache_resource
 def load_selected_model(model_choice):
+    # أسماء الملفات مطابقة تماماً لما تم رفعه على مستودع جيثب
     file_map = {
         "🏆 Best Model (Auto)": "sentiment_model.keras",
-        "LSTM": "lstm_model.keras",
-        "GRU": "gru_model.keras",
-        "SimpleRNN": "rnn_model.keras"
+        "LSTM": "best_lstm.keras",
+        "GRU": "best_gru.keras",
+        "SimpleRNN": "best_simplernn.keras"
     }
     file_name = file_map.get(model_choice, "sentiment_model.keras")
     try:
@@ -162,7 +163,7 @@ def main():
     try:
         tokenizer, label_encoder, config = load_base_artifacts()
     except Exception:
-        st.error("Basic files (tokenizer, label_encoder) not found. Run the notebook first.")
+        st.error("Basic files (tokenizer, label_encoder, config) not found. Run the notebook first.")
         st.stop()
 
     # --- Sidebar ---
@@ -181,8 +182,7 @@ def main():
         if is_loaded:
             st.success(f"**Loaded:** {model_choice}")
         else:
-            st.error(f"**Error:** File for {model_choice} not found on GitHub. Using default model instead.")
-            # Fallback to the default model if the specific one isn't uploaded yet
+            st.error(f"**Error:** Could not load {model_choice}. Using default model.")
             model, _ = load_selected_model("🏆 Best Model (Auto)")
             
         st.markdown("---")
@@ -192,8 +192,7 @@ def main():
         st.markdown("---")
         st.subheader("📌 About this project")
         st.write(
-            "An end-to-end Deep Learning NLP pipeline. "
-            "You can now dynamically switch between RNN, LSTM, and GRU architectures."
+            "An end-to-end Deep Learning NLP pipeline comparing RNN, LSTM, and GRU architectures."
         )
 
     # --- Main Page ---
@@ -201,7 +200,7 @@ def main():
     st.write("Type a tweet in English and see what sentiment the AI predicts!")
 
     if model is None:
-        st.error("Could not load any model. Please check your keras files.")
+        st.error("Could not load any model. Please check your model files.")
         st.stop()
 
     example_options = [
@@ -231,7 +230,6 @@ def main():
             with st.spinner(f'Analyzing using {model_choice}... 🧠'):
                 time.sleep(0.5) 
                 
-                # 1. Processing
                 cleaned = clean_text(text)
                 word_count = len(cleaned.split())
                 char_count = len(cleaned)
@@ -240,7 +238,6 @@ def main():
                 seq = tokenizer.texts_to_sequences([cleaned])
                 pad = pad_sequences(seq, maxlen=maxlen, padding="post", truncating="post")
                 
-                # 2. Prediction
                 probs = model.predict(pad, verbose=0)[0]
                 pred_idx = int(np.argmax(probs))
                 pred_label = label_encoder.inverse_transform([pred_idx])[0]
@@ -251,7 +248,6 @@ def main():
             if pred_label == 'positive' and confidence_score > 80.0:
                 st.balloons()
 
-            # --- Results UI ---
             if confidence_score >= 80:
                 badge = f"<span style='background-color:#d4edda; color:#155724; padding:4px 10px; border-radius:12px; font-size:0.85rem;'>🔥 High Confidence ({confidence_score:.1f}%)</span>"
             elif confidence_score >= 50:
@@ -271,13 +267,12 @@ def main():
                 unsafe_allow_html=True,
             )
             
-            # --- Audio Feature (TTS) ---
             if enable_audio:
                 with st.spinner("Generating audio... 🔊"):
                     try:
                         audio_fp = text_to_speech(text, pred_label.capitalize())
                         st.audio(audio_fp, format="audio/mp3")
-                    except Exception as e:
+                    except Exception:
                         st.warning("Voice feature is temporarily unavailable.")
             
             st.write("") 
